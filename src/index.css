@@ -1,72 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --primary: #283618;
+  --secondary: #FEFAE0;
+  --accent: #BC6C25;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  color-scheme: light;
+  color: var(--primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--secondary);
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  color: var(--primary);
+  text-decoration: none;
 }
+
 a:hover {
-  color: #535bf2;
+  opacity: 0.8;
 }
 
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--primary);
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-family: 'Poppins', inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: all 0.2s ease;
+  background-color: var(--accent) !important;
+  color: var(--secondary) !important;
+  border-radius: 8px;
+  border: none;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:hover {
+  opacity: 0.9;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Reset de cores para elementos comuns */
+h1, h2, h3, h4, h5, h6, p, span, div {
+  color: var(--primary);
+}
+
+/* Inputs e campos de formulário */
+input, select, textarea {
+  background-color: var(--primary);
+  color: var(--secondary);
+  outline: none;
+  padding: 8px;
+}
+
+input::placeholder, select::placeholder, textarea::placeholder {
+  color: var(--secondary);
+  opacity: 0.7;
+}
+
+/* Ajustar cores de texto específicas */
+.text-gray-500,
+.text-gray-600,
+.text-green-600,
+.text-green-700,
+.text-white {
+  color: var(--secondary) !important;
+}
+
+/* Remover todas as classes de borda */
+[class*="border"] {
+  border: none !important;
+}
+
+/* Sombras mais suaves */
+.shadow,
+.shadow-lg {
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Divisores sem borda */
+hr, .divider {
+  height: 1px;
+  background: var(--primary);
+  opacity: 0.2;
+  border: none;
+  margin: 1rem 0;
+}
+
+.rounded-full {
+  border-radius: 8px !important;
+}
+
+/* Estilos do card de recompensas */
+.rewards-card {
+  background-color: var(--primary);
+  border-radius: 15px;
+  padding: 15px;
+  width: 100%;
+}
+
+.rewards-card p {
+  color: var(--secondary);
+}
+
+.accent-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 300;
+  transition: opacity 0.2s ease;
+}
+
+.accent-link:hover {
+  opacity: 0.8;
 }

@@ -61,9 +61,33 @@ function Home() {
   const [nearbySpots, setNearbySpots] = useState([]);
   const { location, error } = useGeolocation({
     enableHighAccuracy: true,
-    maximumAge: 10000,
-    timeout: 5000
+    maximumAge: 30000, // Cache por 30 segundos
+    timeout: 15000 // 15 segundos de timeout
   });
+
+  // Função para pegar os spots próximos com distância
+  const getNearbyWithDistance = () => {
+    if (!location) return [];
+    
+    return TOURIST_SPOTS.map(spot => {
+      const distance = calculateDistance(
+        location.latitude,
+        location.longitude,
+        spot.latitude,
+        spot.longitude
+      );
+      return { ...spot, distance };
+    }).sort((a, b) => a.distance - b.distance)
+      .slice(0, 3); // Pega os 3 mais próximos
+  };
+
+  // Verifica se há cupons disponíveis para spots com check-in
+  const hasAvailableRewards = () => {
+    const availableCoupons = COUPONS.filter(coupon => 
+      checkedInSpots.includes(coupon.spotId) && !usedCoupons.includes(coupon.id)
+    );
+    return availableCoupons.length > 0;
+  };
 
   useEffect(() => {
     localStorage.setItem('checkedInSpots', JSON.stringify(checkedInSpots));
@@ -97,15 +121,12 @@ function Home() {
           );
           
           if (availableCoupons.length > 0) {
-            // Mostrar alerta usando a API nativa de notificações
             if ('Notification' in window && Notification.permission === 'granted') {
               new Notification(`Você está próximo a ${spot.name}!`, {
                 body: 'Há cupons disponíveis para este local. Faça check-in para desbloqueá-los!',
                 icon: '/locall-icon.png'
               });
             } else {
-                
-              // Fallback para alert quando notificações não estão disponíveis
               alert(`Você está próximo a ${spot.name}! Há cupons disponíveis para este local.`);
             }
           }
@@ -114,7 +135,6 @@ function Home() {
     }
   }, [location, nearbySpots, usedCoupons]);
 
-  // Solicitar permissão para notificações
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -138,25 +158,135 @@ function Home() {
 
   if (error) {
     return (
-      <div className="p-4 max-w-4xl mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>Erro ao acessar sua localização: {error}</p>
-          <p className="text-sm">Para usar todos os recursos do app, por favor habilite a localização.</p>
+      <>
+        <div className="h-screen w-screen flex">
+          {/* Mapa em tela cheia */}
+          <div className="flex-1 h-full">
+            <MapView userLocation={null} spots={TOURIST_SPOTS} />
+          </div>
+
+          {/* Menu Lateral */}
+          <div className="w-1/4 bg-white shadow-lg z-10 flex flex-col">
+            {/* Logo */}
+            <div className="p-[15px] flex justify-center items-center">
+              <img 
+                src="/Logo - Locall.png"
+                alt="Locall" 
+                className="h-[100px] w-[100px] object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+              <h2 className="text-2xl font-bold hidden">Locall</h2>
+            </div>
+
+            {/* Mensagem de Erro */}
+            <div className="p-6">
+              <div className="rounded-lg border border-red-200 p-4 bg-red-50">
+                <h3 className="font-medium mb-2">
+                  Não foi possível acessar sua localização
+                </h3>
+                <p className="text-sm mb-4">
+                  Para usar todos os recursos do app, precisamos da sua localização. Por favor:
+                </p>
+                <ol className="text-sm space-y-2">
+                  <li>1. Verifique se a localização está ativada no seu dispositivo</li>
+                  <li>2. Permita o acesso à localização quando solicitado pelo navegador</li>
+                  <li>3. Recarregue a página após permitir o acesso</li>
+                </ol>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 w-full px-4 py-2 rounded font-medium bg-blue-600 text-white"
+                >
+                  Tentar Novamente
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
+  const nearbyWithDistance = getNearbyWithDistance();
+
   return (
-    <div className="p-4 flex flex-col gap-8 max-w-4xl mx-auto">
-      <MapView userLocation={location} spots={TOURIST_SPOTS} />
-      <TouristSpotList 
-        spots={TOURIST_SPOTS} 
-        onCheckIn={handleCheckIn} 
-        checkedInSpots={checkedInSpots}
-        nearbySpots={nearbySpots.map(spot => spot.id)}
-      />
-      <CouponList coupons={unlockedCoupons} onUseCoupon={handleUseCoupon} usedCoupons={usedCoupons} />
+    <div className="h-screen w-screen flex">
+      {/* Mapa em tela cheia */}
+      <div className="flex-1 h-full">
+        <MapView userLocation={location} spots={TOURIST_SPOTS} />
+      </div>
+
+      {/* Menu Lateral */}
+      <div className="w-1/4 bg-white shadow-lg z-10 flex flex-col h-screen px-[45px]">
+        {/* Logo */}
+        <div className="p-[15px] flex justify-center items-center">
+          <img 
+            src="/Logo - Locall.png"
+            alt="Locall" 
+            className="h-[100px] w-[100px] object-contain"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+          <h2 className="text-2xl font-bold hidden">Locall</h2>
+        </div>
+
+        {/* Container para as duas seções */}
+        <div className="flex-1 flex flex-col">
+          {/* Lugares próximos */}
+          <div className="flex-1 flex flex-col items-center justify-center p-[15px]">
+            <div className="flex flex-col items-center w-full">
+              <p className="text-lg mb-4 text-center">
+                {location ? (
+                  `${TOURIST_SPOTS.filter(spot => {
+                    const distance = calculateDistance(
+                      location.latitude,
+                      location.longitude,
+                      spot.latitude,
+                      spot.longitude
+                    );
+                    return distance <= 300;
+                  }).length} lugares próximos de você`
+                ) : (
+                  'Buscando sua localização...'
+                )}
+              </p>
+              <button 
+                className="w-full px-4 py-2 rounded-lg font-medium"
+                onClick={() => {/* Adicionar funcionalidade */}}
+              >
+                Visualizar
+              </button>
+            </div>
+            <a href="/estabelecimentos" className="accent-link mt-4 font-light">
+              Ver tudo
+            </a>
+          </div>
+
+          {/* Divisor */}
+          <div className="divider"></div>
+
+          {/* Recompensas */}
+          <div className="flex-1 flex flex-col items-center justify-center pb-[130px]">
+            <div className="rewards-card">
+              <p className="text-lg mb-4 text-center px-4">
+                {hasAvailableRewards() 
+                  ? 'Você tem prêmios disponíveis!'
+                  : 'Faça check-in nos pontos turísticos para ganhar prêmios!'}
+              </p>
+              <button 
+                className="w-full px-4 py-2 rounded-lg font-medium"
+                onClick={() => {/* Adicionar funcionalidade */}}
+              >
+                Resgatar Prêmios
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

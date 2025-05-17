@@ -17,21 +17,21 @@ function TouristSpotList({ spots, onCheckIn, checkedInSpots, nearbySpots }) {
               }`}
             >
               <div className="flex justify-between items-start">
-                <div>
+            <div>
                   <h3 className="text-xl font-semibold">{spot.name}</h3>
                   <p className="text-gray-600 mt-1">{spot.description}</p>
-                </div>
-                <button
-                  onClick={() => onCheckIn(spot.id)}
+            </div>
+            <button
+              onClick={() => onCheckIn(spot.id)}
                   disabled={isCheckedIn}
                   className={`px-4 py-2 rounded-full text-sm font-medium ${
                     isCheckedIn
                       ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                       : 'bg-green-500 text-white hover:bg-green-600'
                   }`}
-                >
+            >
                   {isCheckedIn ? 'Check-in feito' : 'Fazer Check-in'}
-                </button>
+            </button>
               </div>
               {isNearby && !isCheckedIn && (
                 <div className="mt-2 text-sm text-green-600 flex items-center">
