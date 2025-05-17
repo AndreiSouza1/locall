@@ -1,6 +1,6 @@
 import React from 'react';
 
-function MapView() {
+function MapView({ userLocation, spots }) {
   return (
     <div className="w-full flex justify-center">
       <iframe
