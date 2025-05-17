@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import MapView from '../components/MapView';
 import TouristSpotList from '../components/TouristSpotList';
 import CouponList from '../components/CouponList';
@@ -11,42 +11,48 @@ const TOURIST_SPOTS = [
     name: 'Catedral Diocesana', 
     description: 'Principal igreja de Lages, cartão postal da cidade.',
     latitude: -27.816034,
-    longitude: -50.326191
+    longitude: -50.326191,
+    website: null
   },
   { 
     id: 'mirante', 
     name: 'Morro da Cruz', 
     description: 'Vista panorâmica da cidade de Lages.',
     latitude: -27.807849,
-    longitude: -50.329409
+    longitude: -50.329409,
+    website: null
   },
   { 
     id: 'parque-europa', 
     name: 'Parque Natural de Lages', 
     description: 'Parque com lagos e trilhas.',
     latitude: -27.819123,
-    longitude: -50.327456
+    longitude: -50.327456,
+    website: null
   },
   { 
     id: 'museu', 
     name: 'Museu Thiago de Castro', 
     description: 'Museu histórico de Lages.',
     latitude: -27.815678,
-    longitude: -50.325789
+    longitude: -50.325789,
+    website: null
   },
   {
     id: 'orion',
     name: 'Orion Parque',
     description: 'Parque tecnológico e de inovação de Lages.',
     latitude: -27.80177140008802,
-    longitude: -50.33711196160061
+    longitude: -50.33711196160061,
+    website: 'https://orionparque.com'
   },
   {
     id: 'cevey',
     name: 'Cevey Adegas e Artesanatos',
     description: 'Loja especializada em vinhos e artesanatos locais.',
     latitude: -27.825765414255557,
-    longitude: -50.34384829828887
+    longitude: -50.34384829828887,
+    website: 'https://www.ceveyadegas.com.br'
   }
 ];
 
@@ -56,7 +62,7 @@ const COUPONS = [
   { id: 'cupom3', spotId: 'parque-natural', store: 'Restaurante X', description: 'Cachaça grátis no almoço.' },
   { id: 'cupom4', spotId: 'museu', store: 'Livraria do Museu', description: '15% de desconto em livros.' },
   { id: 'cupom5', spotId: 'orion', store: 'Café do Orion', description: '20% de desconto em qualquer bebida.' },
-  { id: 'cupom6', spotId: 'orion', store: 'Cevey Adegas e Artesanatos', description: '10% de desconto em qualquer produto.' }
+  { id: 'LOCALL10', spotId: 'orion', store: 'Cevey Adegas e Artesanatos', description: '10% de desconto na primeira compra até 19/04.' }
 ];
 
 function Home() {
@@ -70,13 +76,49 @@ function Home() {
   const [showCoupons, setShowCoupons] = useState(false);
   const [isHighAccuracy, setIsHighAccuracy] = useState(false);
   const [availableRewards, setAvailableRewards] = useState(null);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
   
-  // Primeiro tenta com precisão normal, se falhar tenta com alta precisão
   const { location, error } = useGeolocation({
     enableHighAccuracy: isHighAccuracy,
-    maximumAge: 60000, // Cache por 1 minuto
-    timeout: isHighAccuracy ? 30000 : 20000 // 30 segundos para GPS, 20 para rede
+    maximumAge: 60000,
+    timeout: isHighAccuracy ? 30000 : 20000
   });
+
+  // Atualiza os cupons disponíveis quando a localização muda
+  useEffect(() => {
+    if (!location) return;
+
+    const nearby = TOURIST_SPOTS.filter(spot => {
+      const distance = calculateDistance(
+        location.latitude,
+        location.longitude,
+        spot.latitude,
+        spot.longitude
+      );
+      return distance <= 50; // 50 metros
+    });
+
+    // Encontra todos os cupons disponíveis para spots próximos
+    const newAvailableCoupons = COUPONS.filter(coupon => 
+      nearby.some(spot => spot.id === coupon.spotId) && 
+      !usedCoupons.includes(coupon.id)
+    );
+
+    setAvailableCoupons(newAvailableCoupons);
+    
+    // Se há cupons disponíveis, define o spot com recompensas
+    if (newAvailableCoupons.length > 0) {
+      const spotWithRewards = nearby.find(spot => 
+        newAvailableCoupons.some(coupon => coupon.spotId === spot.id)
+      );
+      setAvailableRewards(spotWithRewards);
+    } else {
+      setAvailableRewards(null);
+    }
+
+  }, [location, usedCoupons]);
 
   // Se falhar com precisão normal, tenta com alta precisão
   useEffect(() => {
@@ -142,27 +184,6 @@ function Home() {
     return availableCoupons.length > 0;
   };
 
-  // Função para filtrar cupons por raio
-  const getNearbyAvailableCoupons = () => {
-    if (!location) return [];
-    
-    return COUPONS.filter(coupon => {
-      const spot = TOURIST_SPOTS.find(s => s.id === coupon.spotId);
-      if (!spot) return false;
-      
-      const distance = calculateDistance(
-        location.latitude,
-        location.longitude,
-        spot.latitude,
-        spot.longitude
-      );
-      
-      return distance <= 300 && // 300 metros de raio
-             checkedInSpots.includes(coupon.spotId) && 
-             !usedCoupons.includes(coupon.id);
-    });
-  };
-
   useEffect(() => {
     localStorage.setItem('checkedInSpots', JSON.stringify(checkedInSpots));
   }, [checkedInSpots]);
@@ -195,6 +216,8 @@ function Home() {
           const availableCoupons = COUPONS.filter(coupon => 
             coupon.spotId === spot.id && !usedCoupons.includes(coupon.id)
           );
+          console.log(availableCoupons);
+          
           return availableCoupons.length > 0;
         });
 
@@ -236,6 +259,30 @@ function Home() {
 
   // Cupons desbloqueados após check-in
   const unlockedCoupons = COUPONS.filter(coupon => checkedInSpots.includes(coupon.spotId));
+
+  const handleCopyCoupon = async (couponCode) => {
+    try {
+      await navigator.clipboard.writeText(couponCode);
+      setIsCopied(true);
+      
+      // Remove o cupom da lista e marca como usado após copiar
+      setTimeout(() => {
+        handleUseCoupon(selectedCoupon.id);
+      }, 1500);
+    } catch (err) {
+      console.error('Falha ao copiar cupom:', err);
+    }
+  };
+
+  const openMaps = (coupon) => {
+    // Encontra o spot correto baseado no nome da loja
+    const spot = TOURIST_SPOTS.find(s => s.name === coupon.store) || 
+                TOURIST_SPOTS.find(s => s.id === coupon.spotId);
+    
+    if (spot) {
+      window.open(`https://www.google.com/maps/search/?api=1&query=${spot.latitude},${spot.longitude}`, '_blank');
+    }
+  };
 
   if (error) {
     return (
@@ -291,7 +338,6 @@ function Home() {
   }
 
   const nearbyWithDistance = getNearbyWithDistance();
-  const availableCoupons = getNearbyAvailableCoupons();
 
   const nearestSpot = location ? TOURIST_SPOTS
     .map(spot => ({
@@ -396,6 +442,18 @@ function Home() {
                 )}
               </div>
             </div>
+
+            {/* Divulgue conosco */}
+            <div className="text-center pb-4">
+              <a 
+                href="https://wa.me/5549933008561"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="accent-link font-light"
+              >
+                Divulgue conosco!
+              </a>
+            </div>
           </div>
         ) : (
           <div className="flex-1 overflow-auto py-4">
@@ -409,27 +467,28 @@ function Home() {
               </button>
             </div>
             <div className="space-y-4">
-              {availableCoupons.map(coupon => {
-                const spot = TOURIST_SPOTS.find(s => s.id === coupon.spotId);
-                return (
-                  <div 
-                    key={coupon.id} 
-                    className="p-4 rounded-lg border border-gray-200 hover:border-primary"
-                  >
-                    <h4 className="font-medium">{coupon.store}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{spot?.name}</p>
-                    <p className="text-sm">{coupon.description}</p>
-                    <button
-                      onClick={() => handleUseCoupon(coupon.id)}
-                      className="mt-2 w-full px-3 py-1.5 rounded bg-primary text-white text-sm"
+              {availableCoupons.length > 0 ? (
+                availableCoupons.map(coupon => {
+                  const spot = TOURIST_SPOTS.find(s => s.id === coupon.spotId);
+                  return (
+                    <div 
+                      key={coupon.id} 
+                      className="p-4 rounded-lg border border-gray-200 hover:border-primary"
                     >
-                      Resgatar
-                    </button>
-                  </div>
-                );
-              })}
-              {availableCoupons.length === 0 && (
-                <p className="text-center text-gray-600">
+                      <h4 className="font-medium">{coupon.store}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{spot?.name}</p>
+                      <p className="text-sm">{coupon.description}</p>
+                      <button
+                        onClick={() => setSelectedCoupon({ ...coupon, spot })}
+                        className="mt-2 w-full px-3 py-1.5 rounded bg-primary text-white text-sm"
+                      >
+                        Resgatar
+                      </button>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-center">
                   Nenhuma recompensa disponível no momento.
                 </p>
               )}
@@ -437,6 +496,75 @@ function Home() {
           </div>
         )}
       </div>
+
+      {/* Modal de Resgate */}
+      {selectedCoupon && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full relative">
+            {/* X no canto superior direito */}
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6 absolute top-4 right-4 text-primary cursor-pointer" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+              onClick={() => setSelectedCoupon(null)}
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M6 18L18 6M6 6l12 12" 
+              />
+            </svg>
+
+            {/* Conteúdo da Modal */}
+            <div className="mb-6">
+              <h3 className="text-xl font-medium mb-2">{selectedCoupon.store}</h3>
+              <p>{selectedCoupon.description}</p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleCopyCoupon(selectedCoupon.id)}
+                disabled={isCopied}
+                className={`w-full px-4 py-2 rounded-lg font-medium ${
+                  isCopied 
+                    ? 'bg-green-500 text-white cursor-not-allowed'
+                    : 'bg-primary text-white hover:bg-primary-dark'
+                }`}
+              >
+                {isCopied ? 'Cupom Copiado!' : 'Copiar Cupom'}
+              </button>
+              
+              <button
+                onClick={() => openMaps(selectedCoupon)}
+                className="w-full px-4 py-2 rounded-lg font-medium border border-primary text-primary hover:bg-primary hover:text-white"
+              >
+                Me mostre onde é
+              </button>
+
+              {/* Botão de visitar site */}
+              {(() => {
+                const spot = TOURIST_SPOTS.find(s => s.name === selectedCoupon.store);
+                if (spot?.website) {
+                  return (
+                    <a
+                      href={spot.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="accent-link mt-2 font-light text-center"
+                    >
+                      Visitar site
+                    </a>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

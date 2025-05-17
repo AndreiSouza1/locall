@@ -24,13 +24,13 @@ export const useGeolocation = (options = {}) => {
   useEffect(() => {
     let watchId;
 
-    const isDebug = import.meta.env.VITE_DEBUG === 'true';
+    const isDebug = import.meta.env.VITE_DEBUG == true;
     
     if (isDebug) {
       // Usar localização fixa de debug
       setLocation({
-        latitude: -27.8047937,
-        longitude: -50.3378723,
+        latitude: -27.80177140008802,
+        longitude: -50.33711196160061,
         accuracy: 10 // precisão fixa de 10 metros
       });
       return;
