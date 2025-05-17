@@ -1,27 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --text-color: #355F3B;
-  --button-bg: #355F3B;
-  --button-text: #D6C6B9;
-  --bg-color: #D6C6B9;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --primary: #283618;
+  --secondary: #FEFAE0;
+  --accent: #BC6C25;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
-  color: var(--text-color);
+  color: var(--primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-color);
+  background-color: var(--secondary);
 }
 
 a {
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -34,23 +35,23 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--text-color);
+  color: var(--primary);
 }
 
 button {
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
+  font-family: 'Poppins', inherit;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: var(--button-bg) !important;
-  color: var(--button-text) !important;
+  background-color: var(--accent) !important;
+  color: var(--secondary) !important;
   border-radius: 8px;
   border: none;
 }
@@ -70,19 +71,19 @@ button:disabled {
 
 /* Reset de cores para elementos comuns */
 h1, h2, h3, h4, h5, h6, p, span, div {
-  color: var(--text-color);
+  color: var(--primary);
 }
 
 /* Inputs e campos de formulário */
 input, select, textarea {
-  background-color: var(--button-bg);
-  color: var(--button-text);
+  background-color: var(--primary);
+  color: var(--secondary);
   outline: none;
   padding: 8px;
 }
 
 input::placeholder, select::placeholder, textarea::placeholder {
-  color: var(--button-text);
+  color: var(--secondary);
   opacity: 0.7;
 }
 
@@ -92,7 +93,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
 .text-green-600,
 .text-green-700,
 .text-white {
-  color: var(--button-text) !important;
+  color: var(--secondary) !important;
 }
 
 /* Remover todas as classes de borda */
@@ -109,20 +110,35 @@ input::placeholder, select::placeholder, textarea::placeholder {
 /* Divisores sem borda */
 hr, .divider {
   height: 1px;
-  background: var(--text-color);
+  background: var(--primary);
   opacity: 0.2;
   border: none;
   margin: 1rem 0;
 }
 
-/* Sobrescrever classes de botão do Tailwind */
-[class*="bg-green-"],
-[class*="bg-blue-"] {
-  background-color: var(--button-bg) !important;
-  color: var(--button-text) !important;
-  border-radius: 8px;
-}
-
 .rounded-full {
   border-radius: 8px !important;
+}
+
+/* Estilos do card de recompensas */
+.rewards-card {
+  background-color: var(--primary);
+  border-radius: 15px;
+  padding: 15px;
+  width: 100%;
+}
+
+.rewards-card p {
+  color: var(--secondary);
+}
+
+.accent-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 300;
+  transition: opacity 0.2s ease;
+}
+
+.accent-link:hover {
+  opacity: 0.8;
 }

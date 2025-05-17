@@ -168,7 +168,7 @@ function Home() {
           {/* Menu Lateral */}
           <div className="w-1/4 bg-white shadow-lg z-10 flex flex-col">
             {/* Logo */}
-            <div className="p-6 border-b border-gray-100">
+            <div className="p-[15px] flex justify-center items-center">
               <img 
                 src="/Logo - Locall.png"
                 alt="Locall" 
@@ -219,9 +219,9 @@ function Home() {
       </div>
 
       {/* Menu Lateral */}
-      <div className="w-1/4 bg-white shadow-lg z-10 flex flex-col p-[15px]">
+      <div className="w-1/4 bg-white shadow-lg z-10 flex flex-col h-screen px-[45px]">
         {/* Logo */}
-        <div className="mb-[10px]">
+        <div className="p-[15px] flex justify-center items-center">
           <img 
             src="/Logo - Locall.png"
             alt="Locall" 
@@ -234,57 +234,57 @@ function Home() {
           <h2 className="text-2xl font-bold hidden">Locall</h2>
         </div>
 
-        {/* Locais Próximos */}
-        <div className="flex-1 mb-[10px]">
-          {location ? (
-            <div className="flex flex-col items-center">
-              <p className="text-lg font-medium mb-4">
-                {TOURIST_SPOTS.filter(spot => {
-                  const distance = calculateDistance(
-                    location.latitude,
-                    location.longitude,
-                    spot.latitude,
-                    spot.longitude
-                  );
-                  return distance <= 300;
-                }).length} lugares próximos a você
+        {/* Container para as duas seções */}
+        <div className="flex-1 flex flex-col">
+          {/* Lugares próximos */}
+          <div className="flex-1 flex flex-col items-center justify-center p-[15px]">
+            <div className="flex flex-col items-center w-full">
+              <p className="text-lg mb-4 text-center">
+                {location ? (
+                  `${TOURIST_SPOTS.filter(spot => {
+                    const distance = calculateDistance(
+                      location.latitude,
+                      location.longitude,
+                      spot.latitude,
+                      spot.longitude
+                    );
+                    return distance <= 300;
+                  }).length} lugares próximos de você`
+                ) : (
+                  'Buscando sua localização...'
+                )}
               </p>
               <button 
-                className="px-6 py-2 rounded-lg font-medium bg-blue-600 text-white transition-opacity hover:opacity-80"
+                className="w-full px-4 py-2 rounded-lg font-medium"
                 onClick={() => {/* Adicionar funcionalidade */}}
               >
                 Visualizar
               </button>
             </div>
-          ) : (
-            <p className="text-sm text-center">
-              Buscando sua localização...
-            </p>
-          )}
-        </div>
+            <a href="/estabelecimentos" className="accent-link mt-4 font-light">
+              Ver tudo
+            </a>
+          </div>
 
-        {/* Prêmios Disponíveis */}
-        <div className="bg-white">
-          {hasAvailableRewards() ? (
-            <>
-              <div className="flex items-center mb-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-2" />
-                <span className="font-medium">
-                  Você tem prêmios disponíveis!
-                </span>
-              </div>
+          {/* Divisor */}
+          <div className="divider"></div>
+
+          {/* Recompensas */}
+          <div className="flex-1 flex flex-col items-center justify-center pb-[130px]">
+            <div className="rewards-card">
+              <p className="text-lg mb-4 text-center px-4">
+                {hasAvailableRewards() 
+                  ? 'Você tem prêmios disponíveis!'
+                  : 'Faça check-in nos pontos turísticos para ganhar prêmios!'}
+              </p>
               <button 
-                className="w-full px-4 py-3 rounded-lg font-medium bg-blue-600 text-white"
+                className="w-full px-4 py-2 rounded-lg font-medium"
                 onClick={() => {/* Adicionar funcionalidade */}}
               >
                 Resgatar Prêmios
               </button>
-            </>
-          ) : (
-            <div className="text-sm text-center">
-              Faça check-in nos pontos turísticos para ganhar prêmios!
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
