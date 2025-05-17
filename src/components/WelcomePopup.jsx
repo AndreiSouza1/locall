@@ -18,8 +18,6 @@ const WelcomePopup = () => {
       <div className="popup-content">
         <div className="welcome-message">
           <h1>Bem-vindo ao Locall!</h1>
-          <p>Descubra os melhores pontos turísticos e comerciantes locais da sua região. 
-             Uma experiência única de conexão com sua cidade e sua comunidade.</p>
         </div>
         <img 
           src="/Visite Pontos Turísticos (1).png" 
