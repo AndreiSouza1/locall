@@ -1,26 +1,88 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function Merchants() {
-  const merchants = [
-    { id: 1, name: 'Café Catedral', description: 'Cafeteria tradicional próxima à Catedral' },
-    { id: 2, name: 'Lages Souvenirs', description: 'Loja de lembranças e artesanato local' },
-    { id: 3, name: 'Restaurante X', description: 'Culinária típica serrana' },
-    { id: 4, name: 'Livraria do Museu', description: 'Livros sobre história e cultura local' },
-  ];
+function EstabelecimentoForm() {
+  const [formData, setFormData] = useState({
+    nome: '',
+    logo: null,
+    cnpj: '',
+    latitude: '',
+    longitude: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'logo') {
+      setFormData({ ...formData, logo: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Dados do formulário:', formData);
+    // Aqui você pode enviar os dados para um backend
+  };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Comerciantes Parceiros</h2>
-      <div className="grid gap-4 md:grid-cols-2">
-        {merchants.map(merchant => (
-          <div key={merchant.id} className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-xl font-semibold">{merchant.name}</h3>
-            <p className="text-gray-600">{merchant.description}</p>
-          </div>
-        ))}
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Nome do Estabelecimento:</label>
+        <input
+          type="text"
+          name="nome"
+          value={formData.nome}
+          onChange={handleChange}
+          required
+        />
       </div>
-    </div>
+
+      <div>
+        <label>Logo:</label>
+        <input
+          type="file"
+          name="logo"
+          accept="image/*"
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label>CNPJ:</label>
+        <input
+          type="text"
+          name="cnpj"
+          value={formData.cnpj}
+          onChange={handleChange}
+          pattern="\d{14}"
+          title="CNPJ deve conter 14 dígitos"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Latitude:</label>
+        <input
+          type="text"
+          name="latitude"
+          value={formData.latitude}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label>Longitude:</label>
+        <input
+          type="text"
+          name="longitude"
+          value={formData.longitude}
+          onChange={handleChange}
+        />
+      </div>
+
+      <button type="submit">Enviar</button>
+    </form>
   );
 }
 
-export default Merchants; 
+export default EstabelecimentoForm;
